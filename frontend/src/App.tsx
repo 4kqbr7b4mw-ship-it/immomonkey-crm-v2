@@ -627,102 +627,86 @@ export default function App() {
               <div style={styles.card}>
                 <h2 style={styles.cardTitle}>Leads</h2>
 
+                <LeadForm
+                  newLeadFirstName={newLeadFirstName}
+                  setNewLeadFirstName={setNewLeadFirstName}
+                  newLeadLastName={newLeadLastName}
+                  setNewLeadLastName={setNewLeadLastName}
+                  newLeadEmail={newLeadEmail}
+                  setNewLeadEmail={setNewLeadEmail}
+                  newLeadPhone={newLeadPhone}
+                  setNewLeadPhone={setNewLeadPhone}
+                  handleCreateLead={createLead}
+                  leadSaving={leadSaving}
+                  styles={styles}
+                />
+
+                <LeadFilters
+                  leadSearch={leadSearch}
+                  setLeadSearch={setLeadSearch}
+                  leadStatusFilter={leadStatusFilter}
+                  setLeadStatusFilter={setLeadStatusFilter}
+                  leadSort={leadSort}
+                  setLeadSort={setLeadSort}
+                  leadFollowUpFilter={leadFollowUpFilter}
+                  setLeadFollowUpFilter={setLeadFollowUpFilter}
+                  LEAD_STATUSES={LEAD_STATUSES}
+                  getStatusLabel={getStatusLabel}
+                  styles={styles}
+                />
+
                 {leads.length === 0 ? (
                   <p>Keine Leads vorhanden.</p>
                 ) : (
-                  <>
-                    <LeadForm
-                      newLeadFirstName={newLeadFirstName}
-                      setNewLeadFirstName={setNewLeadFirstName}
-                      newLeadLastName={newLeadLastName}
-                      setNewLeadLastName={setNewLeadLastName}
-                      newLeadEmail={newLeadEmail}
-                      setNewLeadEmail={setNewLeadEmail}
-                      newLeadPhone={newLeadPhone}
-                      setNewLeadPhone={setNewLeadPhone}
-                      handleCreateLead={createLead}
-                      leadSaving={leadSaving}
-                      styles={styles}
-                    />
-
-                    <LeadFilters
-                      leadSearch={leadSearch}
-                      setLeadSearch={setLeadSearch}
-                      leadStatusFilter={leadStatusFilter}
-                      setLeadStatusFilter={setLeadStatusFilter}
-                      leadSort={leadSort}
-                      setLeadSort={setLeadSort}
-                      leadFollowUpFilter={leadFollowUpFilter}
-                      setLeadFollowUpFilter={setLeadFollowUpFilter}
-                      LEAD_STATUSES={LEAD_STATUSES}
-                      getStatusLabel={getStatusLabel}
-                      styles={styles}
-                    />
-
-                    <div
-                      style={
-                        isMobileLayout
-                          ? {
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "16px",
-                          }
-                          : {
-                            display: "grid",
-                            gridTemplateColumns:
-                              "minmax(320px, 1fr) minmax(380px, 1.2fr)",
-                            gap: "16px",
-                            alignItems: "start",
-                          }
-                      }
-                    >
-                      <LeadList
-                        filteredLeads={filteredLeads}
-                        selectedLeadId={selectedLeadId}
-                        setSelectedLeadId={setSelectedLeadId}
-                        getStatusLabel={getStatusLabel}
-                        styles={styles}
-                      />
-
-                      <LeadDetail
-                        detailLoading={detailLoading}
-                        selectedLead={selectedLead}
-                        editFirstName={editFirstName}
-                        setEditFirstName={setEditFirstName}
-                        editLastName={editLastName}
-                        setEditLastName={setEditLastName}
-                        editEmail={editEmail}
-                        setEditEmail={setEditEmail}
-                        editPhone={editPhone}
-                        setEditPhone={setEditPhone}
-                        editFollowUpAt={editFollowUpAt}
-                        setEditFollowUpAt={setEditFollowUpAt}
-                        handleSaveLead={handleSaveLead}
-                        editSaving={editSaving}
-                        LEAD_STATUSES={LEAD_STATUSES}
-                        getStatusLabel={getStatusLabel}
-                        updateLeadStatus={updateLeadStatus}
-                        statusSaving={statusSaving}
-                        newNote={newNote}
-                        setNewNote={setNewNote}
-                        createNote={createNote}
-                        noteSaving={noteSaving}
-                        notes={notes}
-                        newTaskTitle={newTaskTitle}
-                        setNewTaskTitle={setNewTaskTitle}
-                        newTaskDescription={newTaskDescription}
-                        setNewTaskDescription={setNewTaskDescription}
-                        newTaskDueAt={newTaskDueAt}
-                        setNewTaskDueAt={setNewTaskDueAt}
-                        createTask={createTask}
-                        taskSaving={taskSaving}
-                        tasks={tasks}
-                        handleTaskDone={handleTaskDone}
-                        styles={styles}
-                      />
-                    </div>
-                  </>
+                  <LeadList
+                    filteredLeads={filteredLeads}
+                    selectedLeadId={selectedLeadId}
+                    setSelectedLeadId={setSelectedLeadId}
+                    getStatusLabel={getStatusLabel}
+                    styles={styles}
+                  />
                 )}
+              </div>
+
+              <div style={styles.card}>
+                <h2 style={styles.cardTitle}>Lead-Details</h2>
+
+                <LeadDetail
+                  detailLoading={detailLoading}
+                  selectedLead={selectedLead}
+                  editFirstName={editFirstName}
+                  setEditFirstName={setEditFirstName}
+                  editLastName={editLastName}
+                  setEditLastName={setEditLastName}
+                  editEmail={editEmail}
+                  setEditEmail={setEditEmail}
+                  editPhone={editPhone}
+                  setEditPhone={setEditPhone}
+                  editFollowUpAt={editFollowUpAt}
+                  setEditFollowUpAt={setEditFollowUpAt}
+                  handleSaveLead={handleSaveLead}
+                  editSaving={editSaving}
+                  LEAD_STATUSES={LEAD_STATUSES}
+                  getStatusLabel={getStatusLabel}
+                  updateLeadStatus={updateLeadStatus}
+                  statusSaving={statusSaving}
+                  newNote={newNote}
+                  setNewNote={setNewNote}
+                  createNote={createNote}
+                  noteSaving={noteSaving}
+                  notes={notes}
+                  newTaskTitle={newTaskTitle}
+                  setNewTaskTitle={setNewTaskTitle}
+                  newTaskDescription={newTaskDescription}
+                  setNewTaskDescription={setNewTaskDescription}
+                  newTaskDueAt={newTaskDueAt}
+                  setNewTaskDueAt={setNewTaskDueAt}
+                  createTask={createTask}
+                  taskSaving={taskSaving}
+                  tasks={tasks}
+                  handleTaskDone={handleTaskDone}
+                  styles={styles}
+                />
               </div>
             </section>
           </>
@@ -795,8 +779,8 @@ const styles: Record<string, CSSProperties> = {
   },
   layoutGrid: {
     display: "grid",
-    gridTemplateColumns: "minmax(320px, 0.95fr) minmax(420px, 1.25fr)",
-    gap: "16px",
+    gridTemplateColumns: "minmax(380px, 460px) minmax(700px, 1fr)",
+    gap: "24px",
     alignItems: "start",
   },
   card: {
@@ -804,7 +788,7 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: "20px",
     padding: "20px",
     boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
-    overflow: "hidden",
+    overflow: "visible",
   },
   cardTitle: {
     margin: "0 0 16px 0",

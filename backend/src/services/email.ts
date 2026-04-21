@@ -67,11 +67,22 @@ export async function sendLeadConfirmationEmail(
         ],
         subject: "Ihre Anfrage bei Immomonkey",
         htmlContent: `
-          <p>Hallo ${firstName},</p>
-          <p>vielen Dank fuer Ihre Anfrage.</p>
-          <p>Ich melde mich zeitnah persoenlich bei Ihnen.</p>
-          <p>Beste Gruesse<br />Immomonkey</p>
-        `,
+  <p>Hallo ${firstName},</p>
+
+  <p>vielen Dank fuer Ihre Anfrage.</p>
+
+  <p>Ich melde mich zeitnah persoenlich bei Ihnen.</p>
+
+  <p>Wenn Sie es schneller moechten, schreiben Sie mir direkt bei WhatsApp:</p>
+
+  <p>
+    <a href="https://wa.me/493053647941?text=Hallo%20ich%20bin%20${firstName}%20und%20habe%20gerade%20eine%20Anfrage%20ueber%20Immomonkey%20gestellt">
+      Jetzt WhatsApp starten
+    </a>
+  </p>
+
+  <p>Beste Gruesse<br />Immomonkey</p>
+`,
       }),
     });
 

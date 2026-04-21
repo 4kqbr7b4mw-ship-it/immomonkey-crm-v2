@@ -11,10 +11,8 @@ const publicLeadSchema = z.object({
   email: z
     .string()
     .trim()
-    .optional()
-    .or(z.literal(""))
-    .transform((value) => value || undefined)
-    .refine((value) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
+    .min(1, "E-Mail fehlt")
+    .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
       message: "Ungueltige E-Mail",
     }),
   phone: z
@@ -59,17 +57,10 @@ router.post("/public/leads", async (req, res) => {
       });
     }
 
-    if (!data.email && !data.phone) {
-      return res.status(400).json({
-        success: false,
-        message: "Bitte mindestens E-Mail oder Telefonnummer angeben.",
-      });
-    }
-
     const insertPayload = {
       firstName: data.firstName,
       lastName: data.lastName,
-      email: data.email ?? null,
+      email: data.email,
       phone: data.phone ?? null,
       city: data.city ?? null,
       notes: data.notes,

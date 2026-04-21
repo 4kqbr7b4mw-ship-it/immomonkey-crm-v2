@@ -2,7 +2,10 @@ import { Router } from "express";
 import { z } from "zod";
 import { db } from "../config/db.js";
 import { leads } from "../db/schema/leads.js";
-import { sendLeadNotification } from "../services/email.js";
+import {
+  sendLeadNotification,
+  sendLeadConfirmationEmail,
+} from "../services/email.js";
 
 const router = Router();
 
@@ -70,6 +73,7 @@ router.post("/public/leads", async (req, res) => {
     };
 
     const result = await db.insert(leads).values(insertPayload);
+
     await sendLeadNotification({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -78,6 +82,8 @@ router.post("/public/leads", async (req, res) => {
       city: data.city ?? null,
       notes: data.notes,
     });
+
+    await sendLeadConfirmationEmail(data.email, data.firstName);
 
     return res.status(201).json({
       success: true,

@@ -43,3 +43,43 @@ export async function sendLeadNotification(payload: {
     console.error("E-Mail Fehler:", error);
   }
 }
+
+export async function sendLeadConfirmationEmail(
+  to: string,
+  firstName: string
+) {
+  try {
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY as string,
+      },
+      body: JSON.stringify({
+        sender: {
+          name: process.env.BREVO_SENDER_NAME,
+          email: process.env.BREVO_SENDER_EMAIL,
+        },
+        to: [
+          {
+            email: to,
+          },
+        ],
+        subject: "Ihre Anfrage bei Immomonkey",
+        htmlContent: `
+          <p>Hallo ${firstName},</p>
+          <p>vielen Dank fuer Ihre Anfrage.</p>
+          <p>Ich melde mich zeitnah persoenlich bei Ihnen.</p>
+          <p>Beste Gruesse<br />Immomonkey</p>
+        `,
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Brevo Fehler (Lead Mail):", text);
+    }
+  } catch (error) {
+    console.error("Bestaetigungs-Mail Fehler:", error);
+  }
+}

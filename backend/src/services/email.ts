@@ -67,21 +67,51 @@ export async function sendLeadConfirmationEmail(
         ],
         subject: "Ihre Anfrage bei Immomonkey",
         htmlContent: `
-  <p>Hallo ${firstName},</p>
+<div style="font-family: Arial, sans-serif; background-color: #f3f3f3; padding: 24px;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px 32px; border-radius: 10px; text-align: center;">
 
-  <p>vielen Dank fuer Ihre Anfrage.</p>
+    <img src="https://immomonkey.de/wp-content/uploads/2026/04/logo-icon-200x200.png" alt="Immomonkey" style="width: 90px; margin-bottom: 24px;" />
 
-  <p>Ich melde mich zeitnah persoenlich bei Ihnen.</p>
+    <h2 style="margin: 0 0 24px 0; font-size: 32px; color: #111111;">
+      Vielen Dank fuer Ihre Anfrage
+    </h2>
 
-  <p>Wenn Sie es schneller moechten, schreiben Sie mir direkt bei WhatsApp:</p>
+    <p style="margin: 0 0 16px 0; font-size: 17px; color: #222222;">
+      Hallo ${firstName},
+    </p>
 
-  <p>
-    <a href="https://wa.me/493053647941?text=Hallo%20ich%20bin%20${firstName}%20und%20habe%20gerade%20eine%20Anfrage%20ueber%20Immomonkey%20gestellt">
-      Jetzt WhatsApp starten
+    <p style="margin: 0 0 20px 0; font-size: 17px; line-height: 1.6; color: #222222;">
+      vielen Dank fuer Ihre Nachricht und Ihr Vertrauen.
+    </p>
+
+    <p style="margin: 0 0 28px 0; font-size: 17px; line-height: 1.6; color: #222222;">
+      Ich melde mich zeitnah persoenlich bei Ihnen, um Ihre Situation sauber einzuordnen
+      und Ihnen eine klare Grundlage fuer die naechsten Schritte zu geben.
+    </p>
+
+    <a
+      href="https://wa.me/493053647941?text=Hallo%20ich%20bin%20${firstName}%20und%20habe%20gerade%20eine%20Anfrage%20ueber%20Immomonkey%20gestellt"
+      style="display: inline-block; padding: 14px 28px; background-color: #103D20; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 16px;"
+    >
+      WhatsApp
     </a>
-  </p>
 
-  <p>Beste Gruesse<br />Immomonkey</p>
+    <hr style="margin: 32px 0; border: none; border-top: 1px solid #e6e6e6;" />
+
+    <p style="margin: 0; font-size: 14px; color: #666666; line-height: 1.7;">
+      Keine Provision.<br />
+      Keine Interessen.<br />
+      Nur klare Entscheidungen.
+    </p>
+
+    <p style="margin-top: 28px; font-size: 16px; color: #222222; line-height: 1.6;">
+      Beste Gruesse<br />
+      Michael Giese<br />
+      Immomonkey
+    </p>
+
+  </div>
+</div>
 `,
       }),
     });

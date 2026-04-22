@@ -7,6 +7,7 @@ import notesRoutes from "./modules/notes/notes.routes.js";
 import statsRoutes from "./modules/stats/stats.routes.js";
 import tasksRoutes from "./modules/tasks/tasks.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
+import { authMiddleware } from "./middlewares/auth.middleware.js";
 import publicLeadsRouter from "./routes/publicLeads.js";
 
 export const app = express();
@@ -27,10 +28,10 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-app.use("/api/leads", leadsRoutes);
-app.use("/api/leads", notesRoutes);
-app.use("/api/leads", tasksRoutes);
-app.use("/api/stats", statsRoutes);
+app.use("/api/leads", authMiddleware, leadsRoutes);
+app.use("/api/leads", authMiddleware, notesRoutes);
+app.use("/api/leads", authMiddleware, tasksRoutes);
+app.use("/api/stats", authMiddleware, statsRoutes);
 app.use("/api", publicLeadsRouter);
 app.use("/api", crmLeadsRouter);
 

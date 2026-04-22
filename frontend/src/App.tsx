@@ -3,6 +3,7 @@ import LeadList from "./components/LeadList";
 import LeadFilters from "./components/LeadFilters";
 import LeadDetail from "./components/LeadDetail";
 import LeadForm from "./components/LeadForm";
+const CRM_TOKEN = import.meta.env.VITE_CRM_SECRET;
 import {
   updateLeadRequest,
   updateLeadStatusRequest,
@@ -257,6 +258,7 @@ export default function App() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${CRM_TOKEN}`,
         },
         body: JSON.stringify({
           firstName: newLeadFirstName.trim(),
@@ -294,9 +296,21 @@ export default function App() {
       setError(null);
 
       const [leadRes, notesRes, tasksRes] = await Promise.all([
-        fetch(`${API_URL}/leads/${leadId}`),
-        fetch(`${API_URL}/leads/${leadId}/notes`),
-        fetch(`${API_URL}/leads/${leadId}/tasks`),
+        fetch(`${API_URL}/leads/${leadId}`, {
+          headers: {
+            Authorization: `Bearer ${CRM_TOKEN}`,
+          },
+        }),
+        fetch(`${API_URL}/leads/${leadId}/notes`, {
+          headers: {
+            Authorization: `Bearer ${CRM_TOKEN}`,
+          },
+        }),
+        fetch(`${API_URL}/leads/${leadId}/tasks`, {
+          headers: {
+            Authorization: `Bearer ${CRM_TOKEN}`,
+          },
+        }),
       ]);
 
       if (!leadRes.ok) {
@@ -418,6 +432,9 @@ export default function App() {
 
       const res = await fetch(`${API_URL}/leads/${selectedLead.id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${CRM_TOKEN}`,
+        },
       });
 
       if (!res.ok) {
@@ -491,6 +508,7 @@ export default function App() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${CRM_TOKEN}`,
         },
         body: JSON.stringify({
           title: newTaskTitle.trim(),
@@ -546,8 +564,16 @@ export default function App() {
       setError(null);
 
       const [statsRes, leadsRes] = await Promise.all([
-        fetch(`${API_URL}/stats`),
-        fetch(`${API_URL}/leads`),
+        fetch(`${API_URL}/stats`, {
+          headers: {
+            Authorization: `Bearer ${CRM_TOKEN}`,
+          },
+        }),
+        fetch(`${API_URL}/leads`, {
+          headers: {
+            Authorization: `Bearer ${CRM_TOKEN}`,
+          },
+        }),
       ]);
 
       if (!statsRes.ok) {

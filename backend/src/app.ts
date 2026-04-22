@@ -33,6 +33,6 @@ app.use("/api/leads", authMiddleware, notesRoutes);
 app.use("/api/leads", authMiddleware, tasksRoutes);
 app.use("/api/stats", authMiddleware, statsRoutes);
 app.use("/api", publicLeadsRouter);
-app.use("/api", crmLeadsRouter);
+
 
 app.use(errorMiddleware);

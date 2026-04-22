@@ -3,7 +3,6 @@ import LeadList from "./components/LeadList";
 import LeadFilters from "./components/LeadFilters";
 import LeadDetail from "./components/LeadDetail";
 import LeadForm from "./components/LeadForm";
-const CRM_TOKEN = import.meta.env.VITE_CRM_SECRET;
 import {
   updateLeadRequest,
   updateLeadStatusRequest,
@@ -87,6 +86,10 @@ function getStatusLabel(status?: string | null) {
 export default function App() {
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
 
   const [editSaving, setEditSaving] = useState(false);
   const [deleteSaving, setDeleteSaving] = useState(false);
@@ -243,11 +246,75 @@ export default function App() {
     if (!lead.nextFollowUpAt) return false;
 
     const time = new Date(lead.nextFollowUpAt).getTime();
-    return (
-      time >= startOfToday.getTime() &&
-      time <= endOfToday.getTime()
-    );
+    return time >= startOfToday.getTime() && time <= endOfToday.getTime();
   }).length;
+
+  async function checkAuth() {
+    try {
+      const res = await fetch(`${API_URL}/auth/me`, {
+        credentials: "include",
+      });
+
+      setIsAuthenticated(res.ok);
+    } catch {
+      setIsAuthenticated(false);
+    } finally {
+      setAuthChecked(true);
+    }
+  }
+
+  async function handleLogin() {
+    try {
+      setLoginLoading(true);
+      setError(null);
+
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          password: loginPassword,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Login fehlgeschlagen");
+      }
+
+      setIsAuthenticated(true);
+      setLoginPassword("");
+      await loadOverview();
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unbekannter Fehler";
+      setError(message);
+    } finally {
+      setLoginLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    try {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      setIsAuthenticated(false);
+      setStats(null);
+      setLeads([]);
+      setSelectedLeadId(null);
+      setSelectedLead(null);
+      setNotes([]);
+      setTasks([]);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unbekannter Fehler";
+      setError(message);
+    }
+  }
 
   async function createLead() {
     try {
@@ -258,8 +325,8 @@ export default function App() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${CRM_TOKEN}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           firstName: newLeadFirstName.trim(),
           lastName: newLeadLastName.trim(),
@@ -297,19 +364,13 @@ export default function App() {
 
       const [leadRes, notesRes, tasksRes] = await Promise.all([
         fetch(`${API_URL}/leads/${leadId}`, {
-          headers: {
-            Authorization: `Bearer ${CRM_TOKEN}`,
-          },
+          credentials: "include",
         }),
         fetch(`${API_URL}/leads/${leadId}/notes`, {
-          headers: {
-            Authorization: `Bearer ${CRM_TOKEN}`,
-          },
+          credentials: "include",
         }),
         fetch(`${API_URL}/leads/${leadId}/tasks`, {
-          headers: {
-            Authorization: `Bearer ${CRM_TOKEN}`,
-          },
+          credentials: "include",
         }),
       ]);
 
@@ -417,6 +478,7 @@ export default function App() {
       setEditSaving(false);
     }
   }
+
   async function handleDeleteLead() {
     if (!selectedLead) return;
 
@@ -432,9 +494,7 @@ export default function App() {
 
       const res = await fetch(`${API_URL}/leads/${selectedLead.id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${CRM_TOKEN}`,
-        },
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -508,8 +568,8 @@ export default function App() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${CRM_TOKEN}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           title: newTaskTitle.trim(),
           description: newTaskDescription.trim() || undefined,
@@ -565,14 +625,10 @@ export default function App() {
 
       const [statsRes, leadsRes] = await Promise.all([
         fetch(`${API_URL}/stats`, {
-          headers: {
-            Authorization: `Bearer ${CRM_TOKEN}`,
-          },
+          credentials: "include",
         }),
         fetch(`${API_URL}/leads`, {
-          headers: {
-            Authorization: `Bearer ${CRM_TOKEN}`,
-          },
+          credentials: "include",
         }),
       ]);
 
@@ -603,8 +659,14 @@ export default function App() {
   }
 
   useEffect(() => {
-    void loadOverview();
+    void checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      void loadOverview();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     function handleResize() {
@@ -618,10 +680,55 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (selectedLeadId) {
+    if (selectedLeadId && isAuthenticated) {
       void loadLeadDetails(selectedLeadId);
     }
-  }, [selectedLeadId]);
+  }, [selectedLeadId, isAuthenticated]);
+
+  if (!authChecked) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.authCard}>
+          <h1 style={styles.title}>Immomonkey CRM</h1>
+          <p style={styles.subtitle}>Authentifizierung wird geprüft...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div style={styles.page}>
+        <div style={styles.authCard}>
+          <h1 style={styles.title}>Immomonkey CRM Login</h1>
+          <p style={styles.subtitle}>Bitte Passwort eingeben</p>
+
+          {error && (
+            <div style={styles.errorBox}>
+              <strong>Fehler:</strong> {error}
+            </div>
+          )}
+
+          <div style={styles.stack}>
+            <input
+              type="password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              placeholder="Passwort"
+              style={styles.input}
+            />
+            <button
+              style={styles.button}
+              onClick={() => void handleLogin()}
+              disabled={loginLoading}
+            >
+              {loginLoading ? "Login läuft..." : "Einloggen"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.page}>
@@ -631,9 +738,14 @@ export default function App() {
             <h1 style={styles.title}>Immomonkey CRM</h1>
             <p style={styles.subtitle}>Dashboard, Leads und Detailansicht</p>
           </div>
-          <button style={styles.button} onClick={() => void loadOverview()}>
-            Übersicht neu laden
-          </button>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <button style={styles.button} onClick={() => void loadOverview()}>
+              Übersicht neu laden
+            </button>
+            <button style={styles.secondaryButton} onClick={() => void handleLogout()}>
+              Logout
+            </button>
+          </div>
         </header>
 
         {loading && <p>Daten werden geladen...</p>}
@@ -807,6 +919,15 @@ const styles: Record<string, CSSProperties> = {
     width: "100%",
     maxWidth: "1400px",
     margin: "0 auto",
+  },
+  authCard: {
+    width: "100%",
+    maxWidth: "420px",
+    margin: "80px auto",
+    background: "#ffffff",
+    borderRadius: "20px",
+    padding: "24px",
+    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
   },
   header: {
     display: "flex",

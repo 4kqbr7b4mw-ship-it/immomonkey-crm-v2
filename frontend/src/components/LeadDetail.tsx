@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import type { Lead } from "../types/crm";
 
-
 type Note = {
   id: number;
   createdAt: string;
@@ -34,6 +33,8 @@ type LeadDetailProps = {
 
   handleSaveLead: () => Promise<void> | void;
   editSaving: boolean;
+  handleDeleteLead: () => Promise<void> | void;
+  deleteSaving: boolean;
 
   LEAD_STATUSES: string[];
   getStatusLabel: (status?: string | null) => string;
@@ -75,6 +76,8 @@ export default function LeadDetail({
   setEditFollowUpAt,
   handleSaveLead,
   editSaving,
+  handleDeleteLead,
+  deleteSaving,
   LEAD_STATUSES,
   getStatusLabel,
   updateLeadStatus,
@@ -108,6 +111,7 @@ export default function LeadDetail({
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   return (
     <div style={styles.card}>
       <h2 style={styles.cardTitle}>Lead-Details</h2>
@@ -119,17 +123,19 @@ export default function LeadDetail({
       {!detailLoading && selectedLead && (
         <>
           <div style={styles.detailSection}>
-            <div style={
-              isMobile
-                ? {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  borderBottom: "1px solid #e5e7eb",
-                  paddingBottom: "10px",
-                }
-                : styles.detailRow
-            }>
+            <div
+              style={
+                isMobile
+                  ? {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: "10px",
+                  }
+                  : styles.detailRow
+              }
+            >
               <span style={styles.detailLabel}>Vorname</span>
               <input
                 type="text"
@@ -139,17 +145,19 @@ export default function LeadDetail({
               />
             </div>
 
-            <div style={
-              isMobile
-                ? {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  borderBottom: "1px solid #e5e7eb",
-                  paddingBottom: "10px",
-                }
-                : styles.detailRow
-            }>
+            <div
+              style={
+                isMobile
+                  ? {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: "10px",
+                  }
+                  : styles.detailRow
+              }
+            >
               <span style={styles.detailLabel}>Nachname</span>
               <input
                 type="text"
@@ -159,17 +167,19 @@ export default function LeadDetail({
               />
             </div>
 
-            <div style={
-              isMobile
-                ? {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  borderBottom: "1px solid #e5e7eb",
-                  paddingBottom: "10px",
-                }
-                : styles.detailRow
-            }>
+            <div
+              style={
+                isMobile
+                  ? {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: "10px",
+                  }
+                  : styles.detailRow
+              }
+            >
               <span style={styles.detailLabel}>E-Mail</span>
               <input
                 type="email"
@@ -179,17 +189,19 @@ export default function LeadDetail({
               />
             </div>
 
-            <div style={
-              isMobile
-                ? {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  borderBottom: "1px solid #e5e7eb",
-                  paddingBottom: "10px",
-                }
-                : styles.detailRow
-            }>
+            <div
+              style={
+                isMobile
+                  ? {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: "10px",
+                  }
+                  : styles.detailRow
+              }
+            >
               <span style={styles.detailLabel}>Telefon</span>
               <input
                 type="text"
@@ -198,6 +210,7 @@ export default function LeadDetail({
                 style={styles.input}
               />
             </div>
+
             <div
               style={
                 isMobile
@@ -220,7 +233,14 @@ export default function LeadDetail({
               />
             </div>
 
-            <div style={{ marginBottom: 16 }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                flexWrap: "wrap",
+                marginBottom: 16,
+              }}
+            >
               <button
                 style={styles.button}
                 onClick={() => void handleSaveLead()}
@@ -228,19 +248,32 @@ export default function LeadDetail({
               >
                 {editSaving ? "Speichert..." : "Lead speichern"}
               </button>
+
+              <button
+                style={{
+                  ...styles.button,
+                  backgroundColor: "#b91c1c",
+                }}
+                onClick={() => void handleDeleteLead()}
+                disabled={deleteSaving}
+              >
+                {deleteSaving ? "Loescht..." : "Lead loeschen"}
+              </button>
             </div>
 
-            <div style={
-              isMobile
-                ? {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  borderBottom: "1px solid #e5e7eb",
-                  paddingBottom: "10px",
-                }
-                : styles.detailRow
-            }>
+            <div
+              style={
+                isMobile
+                  ? {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: "10px",
+                  }
+                  : styles.detailRow
+              }
+            >
               <span style={styles.detailLabel}>Status</span>
               <div style={styles.statusRow}>
                 <select
@@ -255,75 +288,10 @@ export default function LeadDetail({
                     </option>
                   ))}
                 </select>
-                {statusSaving && (
-                  <span style={styles.smallInfo}>speichert...</span>
-                )}
+                {statusSaving && <span style={styles.smallInfo}>speichert...</span>}
               </div>
             </div>
 
-            <div style={
-              isMobile
-                ? {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  borderBottom: "1px solid #e5e7eb",
-                  paddingBottom: "10px",
-                }
-                : styles.detailRow
-            }>
-              <span style={styles.detailLabel}>Score</span>
-              <span>{selectedLead.score ?? "-"}</span>
-            </div>
-
-            <div style={
-              isMobile
-                ? {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  borderBottom: "1px solid #e5e7eb",
-                  paddingBottom: "10px",
-                }
-                : styles.detailRow
-            }>
-              <span style={styles.detailLabel}>Objektart</span>
-              <span>{selectedLead.propertyType ?? "-"}</span>
-            </div>
-
-            <div style={
-              isMobile
-                ? {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  borderBottom: "1px solid #e5e7eb",
-                  paddingBottom: "10px",
-                }
-                : styles.detailRow
-            }>
-              <span style={styles.detailLabel}>Adresse</span>
-              <span>
-                {[selectedLead.street, selectedLead.zip, selectedLead.city]
-                  .filter(Boolean)
-                  .join(", ") || "-"}
-              </span>
-            </div>
-
-            <div style={
-              isMobile
-                ? {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  borderBottom: "1px solid #e5e7eb",
-                  paddingBottom: "10px",
-                }
-                : styles.detailRow
-            }>
-              <span style={styles.detailLabel}>Quelle</span>
-              <span>{selectedLead.source ?? "-"}</span>
-            </div>
             <div
               style={
                 isMobile
@@ -337,7 +305,79 @@ export default function LeadDetail({
                   : styles.detailRow
               }
             >
-              <span style={styles.detailLabel}>Nächstes Follow-up</span>
+              <span style={styles.detailLabel}>Score</span>
+              <span>{selectedLead.score ?? "-"}</span>
+            </div>
+
+            <div
+              style={
+                isMobile
+                  ? {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: "10px",
+                  }
+                  : styles.detailRow
+              }
+            >
+              <span style={styles.detailLabel}>Objektart</span>
+              <span>{selectedLead.propertyType ?? "-"}</span>
+            </div>
+
+            <div
+              style={
+                isMobile
+                  ? {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: "10px",
+                  }
+                  : styles.detailRow
+              }
+            >
+              <span style={styles.detailLabel}>Adresse</span>
+              <span>
+                {[selectedLead.street, selectedLead.zip, selectedLead.city]
+                  .filter(Boolean)
+                  .join(", ") || "-"}
+              </span>
+            </div>
+
+            <div
+              style={
+                isMobile
+                  ? {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: "10px",
+                  }
+                  : styles.detailRow
+              }
+            >
+              <span style={styles.detailLabel}>Quelle</span>
+              <span>{selectedLead.source ?? "-"}</span>
+            </div>
+
+            <div
+              style={
+                isMobile
+                  ? {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: "10px",
+                  }
+                  : styles.detailRow
+              }
+            >
+              <span style={styles.detailLabel}>Naechstes Follow-up</span>
               <span>
                 {selectedLead.nextFollowUpAt
                   ? new Date(selectedLead.nextFollowUpAt).toLocaleString("de-DE")
@@ -380,8 +420,7 @@ export default function LeadDetail({
                 {notes.map((note) => (
                   <div key={note.id} style={styles.noteCard}>
                     <div style={styles.noteMeta}>
-                      Notiz #{note.id} ·{" "}
-                      {new Date(note.createdAt).toLocaleString("de-DE")}
+                      Notiz #{note.id} · {new Date(note.createdAt).toLocaleString("de-DE")}
                     </div>
                     <div>{note.content}</div>
                   </div>
@@ -455,7 +494,7 @@ export default function LeadDetail({
                     )}
 
                     <div style={styles.taskDue}>
-                      Fällig:{" "}
+                      Faellig:{" "}
                       {task.dueAt
                         ? new Date(task.dueAt).toLocaleString("de-DE")
                         : "-"}

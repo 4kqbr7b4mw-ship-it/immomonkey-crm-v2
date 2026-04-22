@@ -88,6 +88,7 @@ export default function App() {
   const [leads, setLeads] = useState<Lead[]>([]);
 
   const [editSaving, setEditSaving] = useState(false);
+  const [deleteSaving, setDeleteSaving] = useState(false);
   const [editFirstName, setEditFirstName] = useState("");
   const [editLastName, setEditLastName] = useState("");
   const [editEmail, setEditEmail] = useState("");
@@ -402,6 +403,54 @@ export default function App() {
       setEditSaving(false);
     }
   }
+  async function handleDeleteLead() {
+    if (!selectedLead) return;
+
+    const confirmed = window.confirm(
+      `Lead #${selectedLead.id} wirklich loeschen?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeleteSaving(true);
+      setError(null);
+
+      const res = await fetch(`${API_URL}/leads/${selectedLead.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Lead konnte nicht geloescht werden");
+      }
+
+      setLeads((prev) => prev.filter((lead) => lead.id !== selectedLead.id));
+
+      const remainingLeads = leads.filter((lead) => lead.id !== selectedLead.id);
+
+      if (remainingLeads.length > 0) {
+        setSelectedLeadId(remainingLeads[0].id);
+      } else {
+        setSelectedLeadId(null);
+        setSelectedLead(null);
+        setNotes([]);
+        setTasks([]);
+        setEditFirstName("");
+        setEditLastName("");
+        setEditEmail("");
+        setEditPhone("");
+        setEditFollowUpAt("");
+      }
+
+      await loadOverview();
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Unbekannter Fehler";
+      setError(message);
+    } finally {
+      setDeleteSaving(false);
+    }
+  }
 
   async function createNote() {
     if (!selectedLead) return;
@@ -686,6 +735,8 @@ export default function App() {
                   setEditFollowUpAt={setEditFollowUpAt}
                   handleSaveLead={handleSaveLead}
                   editSaving={editSaving}
+                  handleDeleteLead={handleDeleteLead}
+                  deleteSaving={deleteSaving}
                   LEAD_STATUSES={LEAD_STATUSES}
                   getStatusLabel={getStatusLabel}
                   updateLeadStatus={updateLeadStatus}

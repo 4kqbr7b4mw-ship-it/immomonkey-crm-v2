@@ -1,4 +1,4 @@
-
+import crmLeadsRouter from "./routes/crmLeads.js";
 import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
@@ -32,5 +32,6 @@ app.use("/api/leads", notesRoutes);
 app.use("/api/leads", tasksRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api", publicLeadsRouter);
+app.use("/api", crmLeadsRouter);
 
 app.use(errorMiddleware);

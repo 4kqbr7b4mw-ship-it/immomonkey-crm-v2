@@ -10,7 +10,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["node", "express-session"],
+    "types": ["node"],
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src", "drizzle.config.ts"],

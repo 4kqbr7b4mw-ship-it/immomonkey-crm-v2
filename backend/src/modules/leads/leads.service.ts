@@ -86,3 +86,7 @@ export async function updateLeadStatus(id: number, status: LeadStatus) {
 
   return getLeadById(id);
 }
+
+export async function deleteLead(id: number) {
+  await db.delete(leads).where(eq(leads.id, id));
+}

@@ -5,6 +5,7 @@ import {
   getLeadById,
   updateLead,
   updateLeadStatus,
+  deleteLead,
 } from "./leads.service.js";
 import {
   createLeadSchema,
@@ -134,6 +135,31 @@ export async function updateLeadStatusHandler(
 
     const updatedLead = await updateLeadStatus(id, parsed.data.status);
     res.status(200).json(updatedLead);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteLeadHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ message: "Ungültige Lead-ID" });
+    }
+
+    const existingLead = await getLeadById(id);
+
+    if (!existingLead) {
+      return res.status(404).json({ message: "Lead nicht gefunden" });
+    }
+
+    await deleteLead(id);
+    res.status(204).send();
   } catch (error) {
     next(error);
   }

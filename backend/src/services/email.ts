@@ -73,7 +73,7 @@ export async function sendLeadConfirmationEmail(
     <img src="https://immomonkey.de/wp-content/uploads/2026/04/logo-icon-200x200.png" alt="Immomonkey" style="width: 90px; margin-bottom: 24px;" />
 
     <h2 style="margin: 0 0 24px 0; font-size: 32px; color: #111111;">
-      Vielen Dank fuer Ihre Anfrage
+      Vielen Dank für Ihre Anfrage
     </h2>
 
     <p style="margin: 0 0 16px 0; font-size: 17px; color: #222222;">
@@ -81,12 +81,12 @@ export async function sendLeadConfirmationEmail(
     </p>
 
     <p style="margin: 0 0 20px 0; font-size: 17px; line-height: 1.6; color: #222222;">
-      vielen Dank fuer Ihre Nachricht und Ihr Vertrauen.
+      vielen Dank für Ihre Nachricht und Ihr Vertrauen.
     </p>
 
     <p style="margin: 0 0 28px 0; font-size: 17px; line-height: 1.6; color: #222222;">
-      Ich melde mich zeitnah persoenlich bei Ihnen, um Ihre Situation sauber einzuordnen
-      und Ihnen eine klare Grundlage fuer die naechsten Schritte zu geben.
+      Ich melde mich zeitnah persönlich bei Ihnen, um Ihre Situation sauber einzuordnen
+      und Ihnen eine klare Grundlage für die nächsten Schritte zu geben.
     </p>
 
     <a
@@ -105,7 +105,7 @@ export async function sendLeadConfirmationEmail(
     </p>
 
     <p style="margin-top: 28px; font-size: 16px; color: #222222; line-height: 1.6;">
-      Beste Gruesse<br />
+      Beste Grüße<br />
       Michael Giese<br />
       Immomonkey
     </p>

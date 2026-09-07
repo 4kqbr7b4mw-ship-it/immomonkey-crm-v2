@@ -99,9 +99,9 @@ export async function sendLeadConfirmationEmail(
     <hr style="margin: 32px 0; border: none; border-top: 1px solid #e6e6e6;" />
 
     <p style="margin: 0; font-size: 14px; color: #666666; line-height: 1.7;">
-      Keine Provision.<br />
-      Keine Interessen.<br />
-      Nur klare Entscheidungen.
+      Klare Einschätzung.<br />
+      Transparente nächste Schritte.<br />
+      Persönliche Rückmeldung.
     </p>
 
     <p style="margin-top: 28px; font-size: 16px; color: #222222; line-height: 1.6;">

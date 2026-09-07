@@ -70,7 +70,7 @@ export async function sendLeadConfirmationEmail(
 <div style="font-family: Arial, sans-serif; background-color: #f3f3f3; padding: 24px;">
   <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px 32px; border-radius: 10px; text-align: center;">
 
-    <img src="https://immomonkey.de/images/logo-immomonkey.png" alt="Immomonkey" style="width: 90px; margin-bottom: 24px;" />
+    <img src="https://immomonkey.de/images/logo-immomonkey.png" alt="IMMOMONKEY" style="width: 90px; margin-bottom: 24px;" />
 
     <h2 style="margin: 0 0 24px 0; font-size: 32px; color: #111111;">
       Vielen Dank für Ihre Anfrage
@@ -104,10 +104,12 @@ export async function sendLeadConfirmationEmail(
       Persönliche Rückmeldung.
     </p>
 
-    <p style="margin-top: 28px; font-size: 16px; color: #222222; line-height: 1.6;">
+    <p style="margin-top: 28px; margin-bottom: 0; font-size: 16px; color: #222222; line-height: 1.7;">
       Beste Grüße<br />
-      Michael Giese<br />
-      Immomonkey
+      <strong>Michael Giese</strong><br />
+      Immobilienberater | <strong>IMMOMONKEY</strong><br />
+      <a href="mailto:office@immomonkey.de" style="color: #103D20; text-decoration: none;">office@immomonkey.de</a><br />
+      <a href="https://immomonkey.de" style="color: #103D20; text-decoration: none;">www.immomonkey.de</a>
     </p>
 
   </div>

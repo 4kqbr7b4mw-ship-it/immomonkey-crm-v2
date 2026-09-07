@@ -70,7 +70,7 @@ export async function sendLeadConfirmationEmail(
 <div style="font-family: Arial, sans-serif; background-color: #f3f3f3; padding: 24px;">
   <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px 32px; border-radius: 10px; text-align: center;">
 
-    <img src="https://immomonkey.de/wp-content/uploads/2026/04/logo-icon-200x200.png" alt="Immomonkey" style="width: 90px; margin-bottom: 24px;" />
+    <img src="https://immomonkey.de/images/logo-immomonkey.png" alt="Immomonkey" style="width: 90px; margin-bottom: 24px;" />
 
     <h2 style="margin: 0 0 24px 0; font-size: 32px; color: #111111;">
       Vielen Dank für Ihre Anfrage

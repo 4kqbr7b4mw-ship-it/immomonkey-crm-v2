@@ -62,7 +62,18 @@ router.post("/public/sachwert-report", async (req, res) => {
   ].join("\n");
 
   try {
-    await db.insert(leads).values({
+    const pdf = createSachwertPdf(report);
+
+    // Der angeforderte PDF-Versand hat Vorrang. CRM-Speicherung und interne
+    // Benachrichtigung laufen danach unabhängig weiter und bremsen die Seite nicht.
+    await sendSachwertReportEmail({
+      to: data.email,
+      firstName: data.firstName || "Interessent",
+      report,
+      pdf,
+    });
+
+    void db.insert(leads).values({
       firstName: data.firstName || "Interessent",
       lastName: data.lastName || null,
       email: data.email,
@@ -72,24 +83,14 @@ router.post("/public/sachwert-report", async (req, res) => {
       source: "sachwert-rechner",
       status: "new",
       notes,
-    });
-
-    const pdf = createSachwertPdf(report);
-
-    // Die interne Benachrichtigung darf den PDF-Versand nicht ausbremsen.
-    void sendLeadNotification({
+    }).then(() => sendLeadNotification({
       firstName: data.firstName || "Interessent",
       lastName: data.lastName || "",
       email: data.email,
       city: report.propertyCity,
       notes,
-    });
-
-    await sendSachwertReportEmail({
-      to: data.email,
-      firstName: data.firstName || "Interessent",
-      report,
-      pdf,
+    })).catch((error) => {
+      console.error("CRM-Speicherung Sachwert-Rechner fehlgeschlagen:", error);
     });
 
     return res.status(202).json({

@@ -1,133 +1,42 @@
 type ReportLine = [string, string];
 
-function safeText(value: unknown, max = 160): string {
-  return String(value ?? "")
-    .replace(/[\r\n]+/g, " ")
-    .replace(/[^\x20-\x7EäöüÄÖÜß€]/g, "")
-    .trim()
-    .slice(0, max);
+function safeText(value: unknown, max = 165): string {
+  return String(value ?? "").replace(/[\r\n]+/g, " ").replace(/[^\x20-\x7EäöüÄÖÜß€]/g, "").trim().slice(0, max);
 }
-
 function pdfText(value: string): string {
-  return safeText(value)
-    .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue")
-    .replace(/Ä/g, "Ae").replace(/Ö/g, "Oe").replace(/Ü/g, "Ue")
-    .replace(/ß/g, "ss").replace(/€/g, "EUR")
-    .replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+  return safeText(value).replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/Ä/g,"Ae").replace(/Ö/g,"Oe").replace(/Ü/g,"Ue").replace(/ß/g,"ss").replace(/€/g,"EUR").replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
 }
-
-function pageStream(title: string, lines: ReportLine[], page: number): string {
-  const out: string[] = [
-    "q",
-    "0.063 0.239 0.125 rg",
-    "50 792 495 2 re f",
-    "BT /F2 9 Tf 0.063 0.239 0.125 rg 50 812 Td (IMMOMONKEY | Sachwert-Kurzbewertung) Tj ET",
-    "BT /F1 8 Tf 0.38 0.45 0.40 rg 470 812 Td (Seite " + page + ") Tj ET",
-    "BT /F2 20 Tf 0.063 0.239 0.125 rg 50 760 Td (" + pdfText(title) + ") Tj ET",
-  ];
-  let y = 728;
-  for (const [label, value] of lines) {
-    if (label === "__section__") {
-      y -= 16;
-      out.push("BT /F2 11 Tf 0.063 0.239 0.125 rg 50 " + y + " Td (" + pdfText(value) + ") Tj ET");
-      y -= 14;
-      continue;
-    }
-    out.push("0.86 0.89 0.86 RG 50 " + (y - 7) + " m 545 " + (y - 7) + " l S");
-    out.push("BT /F1 9 Tf 0.16 0.18 0.16 rg 50 " + y + " Td (" + pdfText(label) + ") Tj ET");
-    out.push("BT /F2 9 Tf 0.16 0.18 0.16 rg 545 " + y + " Td (" + pdfText(value) + ") Tj ET");
-    y -= 22;
+function stream(title: string, lines: ReportLine[], page: number, result = false): string {
+  const out = ["q","0.063 0.239 0.125 rg","50 792 495 2 re f","BT /F2 9 Tf 0.063 0.239 0.125 rg 50 812 Td (IMMOMONKEY | Sachwert-Kurzbewertung) Tj ET","BT /F1 8 Tf 0.38 0.45 0.40 rg 490 812 Td (Seite "+page+") Tj ET","BT /F2 20 Tf 0.063 0.239 0.125 rg 50 760 Td ("+pdfText(title)+") Tj ET"];
+  let y = 724;
+  if (result) { out.push("0.95 0.97 0.94 rg 50 585 495 105 re f","BT /F1 10 Tf 0.063 0.239 0.125 rg 72 654 Td (ORIENTIERUNGSWERT IM SACHWERTVERFAHREN) Tj ET","BT /F2 29 Tf 0.063 0.239 0.125 rg 72 615 Td ("+pdfText(lines[0][1])+") Tj ET"); lines = lines.slice(1); y = 545; }
+  for (const [label,value] of lines) {
+    if (label === "__section__") { y -= 10; out.push("BT /F2 11 Tf 0.063 0.239 0.125 rg 50 "+y+" Td ("+pdfText(value)+") Tj ET"); y -= 18; continue; }
+    if (label === "__text__") { out.push("BT /F1 9 Tf 0.16 0.18 0.16 rg 50 "+y+" Td ("+pdfText(value)+") Tj ET"); y -= 18; continue; }
+    if (label === "__chart__") { out.push("0.89 0.92 0.89 rg 50 "+(y-67)+" 495 58 re f","0.063 0.239 0.125 rg 75 "+(y-50)+" 155 14 re f","0.90 0.72 0.04 rg 230 "+(y-50)+" 210 14 re f","BT /F1 8 Tf 0.16 0.18 0.16 rg 75 "+(y-32)+" Td (Bodenwert) Tj ET","BT /F1 8 Tf 0.16 0.18 0.16 rg 230 "+(y-32)+" Td (Gebaeude- und Aussenanlagenwert) Tj ET"); y -= 86; continue; }
+    out.push("0.86 0.89 0.86 RG 50 "+(y-7)+" m 545 "+(y-7)+" l S","BT /F1 9 Tf 0.16 0.18 0.16 rg 50 "+y+" Td ("+pdfText(label)+") Tj ET","BT /F2 9 Tf 0.16 0.18 0.16 rg 545 "+y+" Td ("+pdfText(value)+") Tj ET"); y -= 22;
   }
-  out.push("BT /F1 7 Tf 0.38 0.45 0.40 rg 50 32 Td (Automatisierte Ersteinschaetzung - kein Verkehrswertgutachten nach § 194 BauGB.) Tj ET");
-  out.push("Q");
+  out.push("BT /F1 7 Tf 0.38 0.45 0.40 rg 50 32 Td (Automatisierte Ersteinschaetzung | Kein Verkehrswertgutachten nach § 194 BauGB.) Tj ET","Q");
   return out.join("\n");
 }
+function obj(n:number, body:string) { return n+" 0 obj\n"+body+"\nendobj\n"; }
 
-function object(number: number, body: string): string {
-  return number + " 0 obj\n" + body + "\nendobj\n";
-}
+export type SachwertReport = { propertyAddress:string; propertyCity:string; propertyType:string; valuationYear:string; landArea:string; landRate:string; landValue:string; bgf:string; yearBuilt:string; nhkValue:string; buildingCosts:string; remainingLife:string; buildingValue:string; outdoorValue:string; provisionalValue:string; marketFactor:string; marketValue:string; finalValue:string; };
 
-export type SachwertReport = {
-  propertyAddress: string;
-  propertyCity: string;
-  propertyType: string;
-  valuationYear: string;
-  landArea: string;
-  landRate: string;
-  landValue: string;
-  bgf: string;
-  yearBuilt: string;
-  nhkValue: string;
-  buildingCosts: string;
-  remainingLife: string;
-  buildingValue: string;
-  outdoorValue: string;
-  provisionalValue: string;
-  marketFactor: string;
-  marketValue: string;
-  finalValue: string;
-};
-
-export function createSachwertPdf(report: SachwertReport): Buffer {
+export function createSachwertPdf(r: SachwertReport): Buffer {
   const pages = [
-    pageStream("Ihre Sachwert-Kurzbewertung", [
-      ["__section__", "Bewertungsobjekt"],
-      ["Adresse", report.propertyAddress],
-      ["Ort", report.propertyCity],
-      ["Objekttyp", report.propertyType],
-      ["Wertermittlungsjahr", report.valuationYear],
-      ["__section__", "Ergebnis"],
-      ["Sachwertindikation", report.finalValue],
-      ["", ""],
-      ["Hinweis", "Diese Auswertung ist eine erste Orientierung auf Basis Ihrer Eingaben."],
-    ], 1),
-    pageStream("Bodenwert und Herstellungskosten", [
-      ["__section__", "Bodenwert"],
-      ["Grundstücksfläche", report.landArea],
-      ["Bodenrichtwert", report.landRate],
-      ["Bodenwert", report.landValue],
-      ["__section__", "Herstellungskosten"],
-      ["Brutto-Grundfläche", report.bgf],
-      ["Baujahr", report.yearBuilt],
-      ["NHK-Kostenkennwert", report.nhkValue],
-      ["Herstellungskosten", report.buildingCosts],
-    ], 2),
-    pageStream("Sachwertverfahren", [
-      ["__section__", "Alterswertminderung und Außenanlagen"],
-      ["Restnutzungsdauer", report.remainingLife],
-      ["Gebäudesachwert", report.buildingValue],
-      ["Außenanlagen", report.outdoorValue],
-      ["Vorläufiger Sachwert", report.provisionalValue],
-      ["__section__", "Marktanpassung"],
-      ["Sachwertfaktor", report.marketFactor],
-      ["Marktangepasster Sachwert", report.marketValue],
-      ["Sachwertindikation", report.finalValue],
-      ["__section__", "Einordnung"],
-      ["", "Bodenrichtwert, Flächen, Zustand, Rechte und Marktparameter wurden nicht geprüft."],
-    ], 3),
+    stream("Ihre Sachwert-Kurzbewertung",[["__text__","Individuelle Ersteinschaetzung auf Basis Ihrer Angaben"],["__section__","Bewertungsobjekt"],["Adresse",r.propertyAddress],["Ort",r.propertyCity],["Objekttyp",r.propertyType],["Wertermittlungsjahr",r.valuationYear],["__text__","Erstellt fuer Sie von IMMOMONKEY. Die Ergebnisindikation finden Sie auf Seite 8."]],1),
+    stream("Inhalt und Einordnung",[["__section__","Inhalt"],["1","Anlass, Abgrenzung und Objekt"],["2","Bodenwert und Flächenansatz"],["3","Normalherstellungskosten und Alterswertminderung"],["4","Sachwert, Marktanpassung und Ergebnis"],["__section__","Was diese Auswertung leistet"],["__text__","Das Sachwertverfahren bildet Boden und bauliche Anlagen nachvollziehbar ab. Es liefert eine fundierte Orientierung, ersetzt aber keine Besichtigung und kein Verkehrswertgutachten."]],2),
+    stream("Objekt und Verfahrenswahl",[["__section__","Angaben zum Objekt"],["Objektart",r.propertyType],["Objektadresse",r.propertyAddress+", "+r.propertyCity],["Baujahr",r.yearBuilt],["__section__","Gewähltes Verfahren"],["__text__","Der Sachwert setzt sich aus dem Bodenwert sowie dem Zeitwert der baulichen Anlagen zusammen. Anschliessend wird er mit einem Sachwertfaktor an die Marktverhaeltnisse angepasst."],["__text__","Eingaben zu Zustand, Modernisierung, Rechten und Belastungen sind in einer Online-Kurzbewertung nur eingeschraenkt abbildbar."]],3),
+    stream("Bodenwert",[["__section__","Rechenschritt"],["Grundstücksflaeche",r.landArea],["Bodenrichtwert",r.landRate],["Bodenwert",r.landValue],["__chart__",""],["__section__","Einordnung"],["__text__","Bodenrichtwerte sind Lagewerte fuer typisierte Grundstücke. Abweichungen durch Zuschnitt, Erschliessung, Baurecht oder besondere Grundstücksmerkmale koennen entstehen."]],4),
+    stream("Gebäudefläche und Herstellungskosten",[["__section__","Flächenansatz"],["Brutto-Grundflaeche",r.bgf],["Objektart",r.propertyType],["__section__","Normalherstellungskosten"],["NHK-Kostenkennwert",r.nhkValue],["Baupreis-/Indexstand",r.valuationYear],["Herstellungskosten neu",r.buildingCosts],["__text__","Die NHK bilden durchschnittliche Kosten vergleichbarer Gebäude ab. Sie stellen keine individuelle Kostenberechnung dar."]],5),
+    stream("Alterswertminderung und Außenanlagen",[["__section__","Gebäudezeitwert"],["Baujahr",r.yearBuilt],["Restnutzungsdauer",r.remainingLife],["Gebäudesachwert",r.buildingValue],["__section__","Weitere Bestandteile"],["Aussenanlagen",r.outdoorValue],["__text__","Die Alterswertminderung berücksichtigt die wirtschaftliche Restnutzungsdauer. Modernisierungen, Instandhaltungsstau und besondere Bauteile koennen abweichen."]],6),
+    stream("Vorläufiger Sachwert und Marktanpassung",[["__section__","Zusammenführung"],["Bodenwert",r.landValue],["Gebäudesachwert",r.buildingValue],["Aussenanlagen",r.outdoorValue],["Vorlaeufiger Sachwert",r.provisionalValue],["__section__","Marktanpassung"],["Sachwertfaktor",r.marketFactor],["Marktangepasster Sachwert",r.marketValue],["__text__","Der Sachwertfaktor bildet das regionale Marktverhaeltnis zwischen rechnerischem Sachwert und beobachteten Kaufpreisen ab."]],7),
+    stream("Ihr Ergebnis",[["__result__",r.finalValue],["__section__","Orientierungswert"],["Marktangepasster Sachwert",r.marketValue],["__text__","Die Indikation beruht auf Ihren Eingaben und dient als erste Entscheidungshilfe. Eine konkrete Verkaufsstrategie sollte zusätzlich Lage, Zustand und aktuelle Nachfrage berücksichtigen."],["__section__","Nächster Schritt"],["__text__","Gerne ordnen wir den Wert persoenlich ein und prüfen, welche Objektmerkmale den Verkaufspreis beeinflussen können."]],8,true),
+    stream("Hinweise, Annahmen und Datenquellen",[["__section__","Wichtige Annahmen"],["__text__","Keine Vor-Ort-Besichtigung; keine Prüfung von Grundbuch, Baulasten, Altlasten, Flächen, Genehmigungen oder Miet-/Pachtverhältnissen."],["__section__","Datenbasis"],["__text__","Ihre Eingaben, Normalherstellungskosten (NHK), Baupreisindex, Bodenrichtwert und marktübliche Sachwertfaktoren. Parameter werden automatisiert plausibilisiert."],["__section__","Rechtlicher Hinweis"],["__text__","Diese Kurzbewertung ist kein Verkehrswertgutachten im Sinne von § 194 BauGB und keine verbindliche Preiszusage."],["__text__","IMMOMONKEY | Persönlich. Klar. Immobilien."]],9)
   ];
-  const streams = pages.map((content) => Buffer.byteLength(content, "utf8"));
-  const objects = [
-    object(1, "<< /Type /Catalog /Pages 2 0 R >>"),
-    object(2, "<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R] /Count 3 >>"),
-    object(3, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 9 0 R /F2 10 0 R >> >> /Contents 4 0 R >>"),
-    object(4, "<< /Length " + streams[0] + " >>\nstream\n" + pages[0] + "\nendstream"),
-    object(5, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 9 0 R /F2 10 0 R >> >> /Contents 6 0 R >>"),
-    object(6, "<< /Length " + streams[1] + " >>\nstream\n" + pages[1] + "\nendstream"),
-    object(7, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 9 0 R /F2 10 0 R >> >> /Contents 8 0 R >>"),
-    object(8, "<< /Length " + streams[2] + " >>\nstream\n" + pages[2] + "\nendstream"),
-    object(9, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"),
-    object(10, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>"),
-  ];
-  let pdf = "%PDF-1.4\n";
-  const offsets = [0];
-  for (const entry of objects) {
-    offsets.push(Buffer.byteLength(pdf, "utf8"));
-    pdf += entry;
-  }
-  const xref = Buffer.byteLength(pdf, "utf8");
-  pdf += "xref\n0 " + (objects.length + 1) + "\n0000000000 65535 f \n";
-  for (let i = 1; i < offsets.length; i++) pdf += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
-  pdf += "trailer\n<< /Size " + (objects.length + 1) + " /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF";
-  return Buffer.from(pdf, "utf8");
+  const lengths = pages.map(p=>Buffer.byteLength(p,"utf8")); const count=pages.length; const objs:string[]=[obj(1,"<< /Type /Catalog /Pages 2 0 R >>"),obj(2,"<< /Type /Pages /Kids ["+Array.from({length:count},(_,i)=>(3+i*2)+" 0 R").join(" ")+"] /Count "+count+" >>")];
+  pages.forEach((p,i)=>{ const pageNo=3+i*2, contentNo=pageNo+1; objs.push(obj(pageNo,"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 "+(3+count*2)+" 0 R /F2 "+(4+count*2)+" 0 R >> >> /Contents "+contentNo+" 0 R >>")); objs.push(obj(contentNo,"<< /Length "+lengths[i]+" >>\nstream\n"+p+"\nendstream")); });
+  objs.push(obj(3+count*2,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"),obj(4+count*2,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>"));
+  let pdf="%PDF-1.4\n"; const offsets=[0]; for(const entry of objs){offsets.push(Buffer.byteLength(pdf,"utf8"));pdf+=entry;} const xref=Buffer.byteLength(pdf,"utf8"); pdf+="xref\n0 "+(objs.length+1)+"\n0000000000 65535 f \n"; for(let i=1;i<offsets.length;i++)pdf+=String(offsets[i]).padStart(10,"0")+" 00000 n \n"; pdf+="trailer\n<< /Size "+(objs.length+1)+" /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF"; return Buffer.from(pdf,"utf8");
 }

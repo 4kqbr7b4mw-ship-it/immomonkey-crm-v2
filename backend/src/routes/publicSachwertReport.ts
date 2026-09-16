@@ -62,7 +62,7 @@ router.post("/public/sachwert-report", async (req, res) => {
   ].join("\n");
 
   try {
-    const pdf = createSachwertPdf(report);
+    const pdf = await createSachwertPdf(report);
 
     // Der angeforderte PDF-Versand hat Vorrang. CRM-Speicherung und interne
     // Benachrichtigung laufen danach unabhängig weiter und bremsen die Seite nicht.

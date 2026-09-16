@@ -9,6 +9,7 @@ import tasksRoutes from "./modules/tasks/tasks.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
 import publicLeadsRouter from "./routes/publicLeads.js";
+import publicSachwertReportRouter from "./routes/publicSachwertReport.js";
 import authRoutes from "./routes/auth.routes.js";
 
 export const app = express();
@@ -52,5 +53,6 @@ app.use("/api/leads", authMiddleware, notesRoutes);
 app.use("/api/leads", authMiddleware, tasksRoutes);
 app.use("/api/stats", authMiddleware, statsRoutes);
 app.use("/api", publicLeadsRouter);
+app.use("/api", publicSachwertReportRouter);
 
 app.use(errorMiddleware);

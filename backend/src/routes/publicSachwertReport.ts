@@ -82,7 +82,7 @@ router.post("/public/sachwert-report", async (req, res) => {
       propertyType: report.propertyType,
       source: "sachwert-rechner",
       status: "new",
-      notes,
+      message: notes,
     }).then(() => sendLeadNotification({
       firstName: data.firstName || "Interessent",
       lastName: data.lastName || "",

@@ -17,10 +17,10 @@ export async function sendSachwertReportEmail(input: {
   pdf: Buffer;
 }): Promise<void> {
   const apiKey = process.env.BREVO_API_KEY;
-  const senderEmail = process.env.BREVO_SENDER_EMAIL;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || "office@immomonkey.de";
   const senderName = process.env.BREVO_SENDER_NAME || "IMMOMONKEY";
 
-  if (!apiKey || !senderEmail) {
+  if (!apiKey) {
     throw new Error("Brevo ist nicht vollständig konfiguriert.");
   }
 

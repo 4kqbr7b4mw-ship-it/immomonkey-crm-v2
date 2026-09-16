@@ -67,7 +67,7 @@ router.post("/public/leads", async (req, res) => {
       email: data.email,
       phone: data.phone ?? null,
       city: data.city ?? null,
-      notes: data.notes,
+      message: data.notes,
       status: "new",
       source: "website",
     };

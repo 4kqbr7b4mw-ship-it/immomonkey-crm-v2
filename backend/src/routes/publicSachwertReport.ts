@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { leads } from "../db/schema/leads.js";
 import { createSachwertPdf, type SachwertReport } from "../services/sachwertPdf.js";
@@ -50,6 +51,23 @@ router.post("/public/sachwert-report", async (req, res) => {
     return res.status(202).json({ success: true, message: "Auswertung wird versendet." });
   }
 
+  const normalizedEmail = data.email.trim().toLowerCase();
+  const existingReport = await db
+    .select({ id: leads.id })
+    .from(leads)
+    .where(and(
+      eq(leads.source, "sachwert-rechner"),
+      sql`lower(${leads.email}) = ${normalizedEmail}`,
+    ))
+    .limit(1);
+
+  if (existingReport.length > 0) {
+    return res.status(409).json({
+      success: false,
+      message: "Für diese E-Mail-Adresse wurde bereits eine kostenlose Sachwert-Kurzbewertung angefordert. Bitte prüfen Sie Ihr Postfach oder kontaktieren Sie uns für eine persönliche Einordnung.",
+    });
+  }
+
   const report = data.report as SachwertReport;
   const consent = data.marketingConsent ? "JA" : "NEIN";
   const notes = [
@@ -67,7 +85,7 @@ router.post("/public/sachwert-report", async (req, res) => {
     // Der angeforderte PDF-Versand hat Vorrang. CRM-Speicherung und interne
     // Benachrichtigung laufen danach unabhängig weiter und bremsen die Seite nicht.
     await sendSachwertReportEmail({
-      to: data.email,
+      to: normalizedEmail,
       firstName: data.firstName || "Interessent",
       report,
       pdf,
@@ -76,7 +94,7 @@ router.post("/public/sachwert-report", async (req, res) => {
     void db.insert(leads).values({
       firstName: data.firstName || "Interessent",
       lastName: data.lastName || null,
-      email: data.email,
+      email: normalizedEmail,
       city: report.propertyCity,
       street: report.propertyAddress,
       propertyType: report.propertyType,
@@ -86,7 +104,7 @@ router.post("/public/sachwert-report", async (req, res) => {
     }).then(() => sendLeadNotification({
       firstName: data.firstName || "Interessent",
       lastName: data.lastName || "",
-      email: data.email,
+      email: normalizedEmail,
       city: report.propertyCity,
       notes,
     })).catch((error) => {

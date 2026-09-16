@@ -3,7 +3,8 @@ import { z } from "zod";
 import { db } from "../config/db.js";
 import { leads } from "../db/schema/leads.js";
 import { createSachwertPdf, type SachwertReport } from "../services/sachwertPdf.js";
-import { sendLeadNotification, sendSachwertReportEmail } from "../services/email.js";
+import { sendLeadNotification } from "../services/email.js";
+import { sendSachwertReportEmail } from "../services/sachwertEmail.js";
 
 const router = Router();
 

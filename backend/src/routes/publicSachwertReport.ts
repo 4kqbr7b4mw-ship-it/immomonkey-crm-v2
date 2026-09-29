@@ -52,20 +52,25 @@ router.post("/public/sachwert-report", async (req, res) => {
   }
 
   const normalizedEmail = data.email.trim().toLowerCase();
-  const existingReport = await db
-    .select({ id: leads.id })
-    .from(leads)
-    .where(and(
-      eq(leads.source, "sachwert-rechner"),
-      sql`lower(${leads.email}) = ${normalizedEmail}`,
-    ))
-    .limit(1);
+  const unlimitedReportEmails = new Set(["panketalimo@gmail.com"]);
+  const hasUnlimitedReports = unlimitedReportEmails.has(normalizedEmail);
 
-  if (existingReport.length > 0) {
-    return res.status(409).json({
-      success: false,
-      message: "Für diese E-Mail-Adresse wurde bereits eine kostenlose Sachwert-Kurzbewertung angefordert. Bitte prüfen Sie Ihr Postfach oder kontaktieren Sie uns für eine persönliche Einordnung.",
-    });
+  if (!hasUnlimitedReports) {
+    const existingReport = await db
+      .select({ id: leads.id })
+      .from(leads)
+      .where(and(
+        eq(leads.source, "sachwert-rechner"),
+        sql`lower(${leads.email}) = ${normalizedEmail}`,
+      ))
+      .limit(1);
+
+    if (existingReport.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "Für diese E-Mail-Adresse wurde bereits eine kostenlose Sachwert-Kurzbewertung angefordert. Bitte prüfen Sie Ihr Postfach oder kontaktieren Sie uns für eine persönliche Einordnung.",
+      });
+    }
   }
 
   const report = data.report as SachwertReport;

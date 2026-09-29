@@ -119,6 +119,7 @@ router.post("/public/sachwert-report", async (req, res) => {
     return res.status(202).json({
       success: true,
       message: "Ihre Sachwert-Kurzbewertung wird per E-Mail versendet.",
+      allowRepeat: hasUnlimitedReports,
     });
   } catch (error) {
     console.error("Fehler bei POST /api/public/sachwert-report:", error);

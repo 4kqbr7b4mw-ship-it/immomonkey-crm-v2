@@ -4,25 +4,24 @@ type BrevoAggregatedReport = {
   range?: string;
   requests?: number;
   delivered?: number;
-  hardBounces?: number;
-  softBounces?: number;
 };
 
 const router = Router();
+const MIN_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+let lastSuccessfulCheckAt = 0;
 
-router.post("/internal/brevo-health", async (req, res) => {
-  const expectedToken = process.env.BREVO_HEALTH_TOKEN?.trim();
-  const providedToken = req.get("authorization");
+router.post("/internal/brevo-health", async (_req, res) => {
+  const now = Date.now();
 
-  if (!expectedToken) {
-    return res.status(503).json({
-      status: "error",
-      reason: "health-token-not-configured",
+  if (
+    lastSuccessfulCheckAt > 0 &&
+    now - lastSuccessfulCheckAt < MIN_CHECK_INTERVAL_MS
+  ) {
+    return res.status(200).json({
+      status: "ok",
+      brevo: "recently-checked",
+      checkedAt: new Date(lastSuccessfulCheckAt).toISOString(),
     });
-  }
-
-  if (providedToken !== `Bearer ${expectedToken}`) {
-    return res.status(401).json({ status: "unauthorized" });
   }
 
   const apiKey = process.env.BREVO_API_KEY?.trim();
@@ -59,20 +58,18 @@ router.post("/internal/brevo-health", async (req, res) => {
     }
 
     const report = (await response.json()) as BrevoAggregatedReport;
-    const requests30d = Number(report.requests ?? 0);
-    const delivered30d = Number(report.delivered ?? 0);
+    lastSuccessfulCheckAt = now;
 
     console.log(
-      `[Brevo Health] OK; requests30d=${requests30d}; delivered30d=${delivered30d}`
+      `[Brevo Health] OK; range=${report.range ?? "n/a"}; requests30d=${Number(
+        report.requests ?? 0
+      )}; delivered30d=${Number(report.delivered ?? 0)}`
     );
 
     return res.status(200).json({
       status: "ok",
       brevo: "reachable",
-      range: report.range ?? null,
-      requests30d,
-      delivered30d,
-      checkedAt: new Date().toISOString(),
+      checkedAt: new Date(lastSuccessfulCheckAt).toISOString(),
     });
   } catch (error) {
     console.error("[Brevo Health] request failed:", error);

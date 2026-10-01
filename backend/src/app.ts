@@ -11,6 +11,7 @@ import { authMiddleware } from "./middlewares/auth.middleware.js";
 import publicLeadsRouter from "./routes/publicLeads.js";
 import publicSachwertReportRouter from "./routes/publicSachwertReport.js";
 import authRoutes from "./routes/auth.routes.js";
+import brevoHealthRouter from "./routes/brevoHealth.js";
 
 export const app = express();
 
@@ -48,6 +49,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api", authRoutes);
+app.use("/api", brevoHealthRouter);
 app.use("/api/leads", authMiddleware, leadsRoutes);
 app.use("/api/leads", authMiddleware, notesRoutes);
 app.use("/api/leads", authMiddleware, tasksRoutes);
